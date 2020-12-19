@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"sort"
@@ -45,25 +46,30 @@ func findInvalidNumber(numbers []int, preambleLength int) int {
 func findEncryptWeakness(numbers []int, invalidNum int) int {
 	for i := range numbers {
 		for j:=i+1; j<len(numbers); j++ {
-			if check(numbers[i:j], invalidNum) {
+			if foundEW, err := check(numbers[i:j], invalidNum); foundEW {
 				nums := numbers[i:j]
 				sort.Ints(nums)
 				return nums[0] + nums[len(nums)-1]
+			} else if err != nil {
+				break
 			}
 		}
 	}
 	return 0
 }
 
-func check(numbers []int, invalidNum int) bool {
+func check(numbers []int, invalidNum int) (bool, error) {
 	var nums []int
 	for _, num := range numbers {
 		nums = append(nums, num)
-		if sum(nums) == invalidNum {
-			return true
+		total := sum(nums)
+		if total == invalidNum {
+			return true, nil
+		} else if total > invalidNum {
+			return false, errors.New("Total is greater than target, move onto next start index.")
 		}
 	}
-	return false
+	return false, nil
 }
 
 func sum(n []int) int {
