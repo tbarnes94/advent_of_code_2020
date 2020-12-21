@@ -45,21 +45,33 @@ func max(nums []int) int {
 	return out
 }
 
-func getDistinctConfigs(jolts []int, thisVal int, thisNdx int, cache []int) int {
-	out := 0
-	if thisNdx>0 && thisNdx<len(jolts) && cache[thisNdx]>0 {
-		return cache[thisNdx]
-	}
-	for nextNdx:=thisNdx+1; nextNdx<=nextNdx+3 && nextNdx<len(jolts); nextNdx++ {
-		nextVal := jolts[nextNdx]
-		if nextVal-thisVal<=3 {
-			cachedVal := getDistinctConfigs(jolts, nextVal, nextNdx, cache)
-			cache[nextNdx] = cachedVal
-			out += cachedVal
+func contains(list []int, value int) bool {
+	for _, item := range list {
+		if item == value {
+			return true
 		}
-
 	}
-	return out
+	return false
+}
+
+// inspired by https://www.reddit.com/r/adventofcode/comments/ka8z8x/2020_day_10_solutions/gfcxuxf
+func getPaths(adapters []int) int {
+	goal := max(adapters)
+	paths := make([]int, goal+1)
+	validJoltDiffs := []int{1, 2, 3}
+	paths[0] = 1
+	for _, adapter := range adapters {
+		for _, diff := range validJoltDiffs {
+			nextAdapter := adapter + diff
+			if nextAdapter > goal {
+				break
+			}
+			if contains(adapters, nextAdapter) {
+				paths[nextAdapter] += paths[adapter]
+			}
+		}
+	}
+	return paths[goal]
 }
 
 func main() {
@@ -71,12 +83,8 @@ func main() {
 	sort.Ints(jolts)
 
 	// part 1
-	out := getNJoltDiffs(jolts, 1) * getNJoltDiffs(jolts, 3)
-	fmt.Println("Number of 1 Jolt Diffs * Number of 3 Jolt Diffs:", out)
+	fmt.Println("Number of 1 Jolt Diffs * Number of 3 Jolt Diffs:", getNJoltDiffs(jolts, 1) * getNJoltDiffs(jolts, 3))
 
 	// part 2
-	jolts = jolts[1:]
-	cache := make([]int, len(jolts))
-	cache[len(jolts)-1] = 1
-	fmt.Println("Distinct Adapter Configurations:", getDistinctConfigs(jolts, 0, -1, cache))
+	fmt.Println(fmt.Sprintf("Distinct Adapter Configurations for an Adapter with %d Joltage:", max(jolts)), getPaths(jolts))
 }
