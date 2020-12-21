@@ -63,9 +63,6 @@ func getPaths(adapters []int) int {
 	for _, adapter := range adapters {
 		for _, diff := range validJoltDiffs {
 			nextAdapter := adapter + diff
-			if nextAdapter > goal {
-				break
-			}
 			if contains(adapters, nextAdapter) {
 				paths[nextAdapter] += paths[adapter]
 			}
